@@ -1,0 +1,2579 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+:root {
+
+    --background: #05070b;
+
+    --text: #f5f7fa;
+
+    --text-soft: #a0a7b5;
+
+    --text-dark: #656c7b;
+
+    --purple: #9d7cff;
+
+    --cyan: #68e6dc;
+
+    --green: #63e69a;
+
+    --border: rgba(255,255,255,.09);
+
+    --card: rgba(255,255,255,.035);
+
+    --max-width: 1250px;
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+
+    margin: 0;
+
+    padding: 0;
+
+    box-sizing: border-box;
+
+}
+
+
+html {
+
+    scroll-behavior: smooth;
+
+}
+
+
+body {
+
+    background: var(--background);
+
+    color: var(--text);
+
+    font-family: 'Inter', sans-serif;
+
+    overflow-x: hidden;
+
+}
+
+
+a {
+
+    color: inherit;
+
+    text-decoration: none;
+
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+.background {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: -20;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+}
+
+
+.background-grid {
+
+    position: absolute;
+
+    inset: 0;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,.018) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.018) 1px,
+            transparent 1px
+        );
+
+    background-size: 70px 70px;
+
+}
+
+
+.background-glow {
+
+    position: absolute;
+
+    width: 600px;
+
+    height: 600px;
+
+    border-radius: 50%;
+
+    filter: blur(150px);
+
+    opacity: .12;
+
+}
+
+
+.glow-one {
+
+    top: -300px;
+
+    left: -250px;
+
+    background: #6855ff;
+
+}
+
+
+.glow-two {
+
+    right: -300px;
+
+    top: 400px;
+
+    background: #00d9ff;
+
+}
+
+
+.noise {
+
+    position: absolute;
+
+    inset: 0;
+
+    opacity: .025;
+
+}
+
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.navbar {
+
+    position: fixed;
+
+    top: 20px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: min(92%, var(--max-width));
+
+    padding: 14px 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    background: rgba(5,7,11,.75);
+
+    border: 1px solid var(--border);
+
+    border-radius: 18px;
+
+    backdrop-filter: blur(20px);
+
+    z-index: 1000;
+
+}
+
+
+.logo {
+
+    font-family: 'Space Grotesk';
+
+    font-weight: 700;
+
+    font-size: 18px;
+
+}
+
+
+.logo span {
+
+    color: var(--purple);
+
+}
+
+
+.navigation {
+
+    display: flex;
+
+    gap: 28px;
+
+}
+
+
+.nav-link {
+
+    position: relative;
+
+    color: var(--text-soft);
+
+    font-size: 12px;
+
+    transition: .3s;
+
+}
+
+
+.nav-link:hover,
+
+.nav-link.active {
+
+    color: white;
+
+}
+
+
+.nav-link::after {
+
+    content: "";
+
+    position: absolute;
+
+    bottom: -7px;
+
+    left: 0;
+
+    width: 0;
+
+    height: 1px;
+
+    background: var(--purple);
+
+    transition: .3s;
+
+}
+
+
+.nav-link:hover::after,
+
+.nav-link.active::after {
+
+    width: 100%;
+
+}
+
+
+.nav-contact {
+
+    padding: 9px 14px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    font-size: 11px;
+
+}
+
+
+.menu-button {
+
+    display: none;
+
+    background: none;
+
+    border: none;
+
+    color: white;
+
+    font-size: 22px;
+
+}
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+.mobile-menu {
+
+    position: fixed;
+
+    top: 85px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 90%;
+
+    padding: 25px;
+
+    display: none;
+
+    flex-direction: column;
+
+    gap: 20px;
+
+    background: rgba(7,9,14,.96);
+
+    border: 1px solid var(--border);
+
+    border-radius: 18px;
+
+    z-index: 999;
+
+}
+
+
+.mobile-menu.open {
+
+    display: flex;
+
+}
+
+
+.mobile-menu a {
+
+    color: var(--text-soft);
+
+}
+
+
+/* =========================================================
+   CURSOR
+========================================================= */
+
+.cursor {
+
+    position: fixed;
+
+    width: 34px;
+
+    height: 34px;
+
+    border: 1px solid rgba(255,255,255,.4);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    transform: translate(-50%,-50%);
+
+    z-index: 9999;
+
+    transition:
+        width .25s,
+        height .25s;
+
+}
+
+
+.cursor-dot {
+
+    position: fixed;
+
+    width: 5px;
+
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    pointer-events: none;
+
+    transform: translate(-50%,-50%);
+
+    z-index: 10000;
+
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+
+    width: min(92%, var(--max-width));
+
+    min-height: 100vh;
+
+    margin: auto;
+
+    padding-top: 110px;
+
+    display: grid;
+
+    grid-template-columns: .95fr 1.05fr;
+
+    align-items: center;
+
+}
+
+
+.hero-content {
+
+    position: relative;
+
+    z-index: 10;
+
+}
+
+
+.hero-intro {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 25px;
+
+    color: var(--cyan);
+
+    font-size: 10px;
+
+    letter-spacing: 3px;
+
+    font-weight: 600;
+
+}
+
+
+.intro-line {
+
+    width: 28px;
+
+    height: 1px;
+
+    background: var(--cyan);
+
+}
+
+
+.hero-title {
+
+    max-width: 700px;
+
+    font-family: 'Space Grotesk';
+
+    font-size: clamp(50px,5.5vw,82px);
+
+    line-height: .97;
+
+    letter-spacing: -4px;
+
+}
+
+
+.hero-title span {
+
+    display: block;
+
+    background:
+        linear-gradient(
+            100deg,
+            #fff,
+            #b19cff,
+            #72e7df
+        );
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+.hero-description {
+
+    max-width: 520px;
+
+    margin-top: 30px;
+
+    color: var(--text-soft);
+
+    font-size: 14px;
+
+    line-height: 1.85;
+
+}
+
+
+.hero-buttons {
+
+    display: flex;
+
+    gap: 12px;
+
+    margin-top: 32px;
+
+}
+
+
+.button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 14px 20px;
+
+    border-radius: 11px;
+
+    font-size: 12px;
+
+    transition: .3s;
+
+}
+
+
+.button-primary {
+
+    background: white;
+
+    color: #05070b;
+
+    font-weight: 600;
+
+}
+
+
+.button-primary:hover {
+
+    transform: translateY(-4px);
+
+}
+
+
+.button-secondary {
+
+    border: 1px solid var(--border);
+
+}
+
+
+.button-secondary:hover {
+
+    background: var(--card);
+
+    transform: translateY(-4px);
+
+}
+
+
+.developer-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin-top: 30px;
+
+    color: var(--text-dark);
+
+    font-size: 10px;
+
+}
+
+
+.status-light {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow: 0 0 12px var(--green);
+
+}
+
+
+.hero-mini-info {
+
+    display: flex;
+
+    gap: 35px;
+
+    margin-top: 45px;
+
+}
+
+
+.hero-mini-info div {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+}
+
+
+.hero-mini-info strong {
+
+    font-family: 'Space Grotesk';
+
+    font-size: 22px;
+
+}
+
+
+.hero-mini-info span {
+
+    color: var(--text-dark);
+
+    font-size: 9px;
+
+}
+
+
+/* =========================================================
+   PANDA STAGE
+========================================================= */
+
+.panda-stage {
+
+    position: relative;
+
+    height: 650px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.panda-ambient {
+
+    position: absolute;
+
+    width: 470px;
+
+    height: 470px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(180,190,215,.16),
+            transparent 68%
+        );
+
+    filter: blur(25px);
+
+    animation: ambientPulse 5s infinite ease-in-out;
+
+}
+
+
+@keyframes ambientPulse {
+
+    0%,100% {
+        transform: scale(1);
+        opacity: .6;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+
+}
+
+
+/* =========================================================
+   RINGS
+========================================================= */
+
+.panda-ring {
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255,255,255,.07);
+
+}
+
+
+.ring-large {
+
+    width: 600px;
+
+    height: 600px;
+
+    animation: rotateRing 30s linear infinite;
+
+}
+
+
+.ring-medium {
+
+    width: 480px;
+
+    height: 480px;
+
+    border-style: dashed;
+
+    animation:
+        rotateRing 22s linear infinite reverse;
+
+}
+
+
+.ring-small {
+
+    width: 360px;
+
+    height: 360px;
+
+    border-color: rgba(104,230,220,.12);
+
+}
+
+
+@keyframes rotateRing {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+.particle {
+
+    position: absolute;
+
+    width: 4px;
+
+    height: 4px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.55);
+
+    animation:
+        particleFloat 5s ease-in-out infinite;
+
+}
+
+
+.particle-one {
+    top: 20%;
+    left: 20%;
+}
+
+
+.particle-two {
+    top: 28%;
+    right: 14%;
+    animation-delay: 1s;
+}
+
+
+.particle-three {
+    bottom: 25%;
+    left: 15%;
+    animation-delay: 2s;
+}
+
+
+.particle-four {
+    bottom: 20%;
+    right: 20%;
+    animation-delay: 3s;
+}
+
+
+@keyframes particleFloat {
+
+    0%,100% {
+        transform: translateY(0);
+        opacity: .3;
+    }
+
+    50% {
+        transform: translateY(-20px);
+        opacity: 1;
+    }
+
+}
+
+
+/* =========================================================
+   PANDA CHARACTER
+========================================================= */
+
+.panda-character {
+
+    position: relative;
+
+    width: 330px;
+
+    height: 480px;
+
+    z-index: 10;
+
+    animation:
+        pandaBreathing 4s ease-in-out infinite;
+
+}
+
+
+@keyframes pandaBreathing {
+
+    0%,100% {
+        transform: translateY(0) scaleY(1);
+    }
+
+    50% {
+        transform: translateY(-7px) scaleY(1.012);
+    }
+
+}
+
+
+/* =========================================================
+   PANDA SHADOW
+========================================================= */
+
+.panda-shadow {
+
+    position: absolute;
+
+    bottom: 10px;
+
+    left: 50%;
+
+    width: 245px;
+
+    height: 35px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background: rgba(0,0,0,.65);
+
+    filter: blur(15px);
+
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+.panda-body {
+
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 35px;
+
+    width: 245px;
+
+    height: 290px;
+
+    transform: translateX(-50%);
+
+    border-radius:
+        48%
+        48%
+        42%
+        42%;
+
+    background:
+        radial-gradient(
+            circle at 50% 25%,
+            #f5f3ec 0%,
+            #e5e1d7 38%,
+            #bcb8ae 72%,
+            #88847c 100%
+        );
+
+    box-shadow:
+        inset -22px -18px 35px rgba(0,0,0,.28),
+        inset 15px 12px 25px rgba(255,255,255,.28),
+        0 30px 50px rgba(0,0,0,.45);
+
+}
+
+
+/* black outer belly/body */
+
+.panda-body::before {
+
+    content: "";
+
+    position: absolute;
+
+    inset: -10px;
+
+    z-index: -1;
+
+    border-radius: inherit;
+
+    background:
+        radial-gradient(
+            circle at 50% 35%,
+            #242528,
+            #0b0c0f 75%
+        );
+
+}
+
+
+/* belly */
+
+.belly {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 28%;
+
+    width: 145px;
+
+    height: 180px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 45% 35%,
+            #faf8f0,
+            #ddd9ce 75%
+        );
+
+    box-shadow:
+        inset -10px -12px 20px rgba(0,0,0,.15);
+
+}
+
+
+/* legs */
+
+.left-leg,
+.right-leg {
+
+    position: absolute;
+
+    bottom: -10px;
+
+    width: 90px;
+
+    height: 120px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 40% 30%,
+            #292a2d,
+            #07080a
+        );
+
+}
+
+
+.left-leg {
+
+    left: 0;
+
+    transform: rotate(18deg);
+
+}
+
+
+.right-leg {
+
+    right: 0;
+
+    transform: rotate(-18deg);
+
+}
+
+
+/* =========================================================
+   HEAD
+========================================================= */
+
+.panda-head {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 25px;
+
+    width: 225px;
+
+    height: 205px;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 8;
+
+}
+
+
+/* ears */
+
+.ear {
+
+    position: absolute;
+
+    top: -20px;
+
+    width: 70px;
+
+    height: 70px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 45% 40%,
+            #35363a,
+            #090a0c 70%
+        );
+
+    box-shadow:
+        inset -8px -8px 12px rgba(0,0,0,.5);
+
+}
+
+
+.left-ear {
+
+    left: 4px;
+
+}
+
+
+.right-ear {
+
+    right: 4px;
+
+}
+
+
+/* face */
+
+.face {
+
+    position: absolute;
+
+    inset: 0;
+
+    border-radius:
+        48%
+        48%
+        46%
+        46%;
+
+    background:
+        radial-gradient(
+            circle at 45% 30%,
+            #fffefa 0%,
+            #eeeae0 55%,
+            #c4c0b7 100%
+        );
+
+    box-shadow:
+        inset -15px -12px 25px rgba(0,0,0,.2),
+        inset 10px 8px 20px rgba(255,255,255,.5);
+
+}
+
+
+/* =========================================================
+   EYES
+========================================================= */
+
+.eye-patch {
+
+    position: absolute;
+
+    top: 65px;
+
+    width: 62px;
+
+    height: 83px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            #222327,
+            #08090b
+        );
+
+}
+
+
+.left-patch {
+
+    left: 28px;
+
+    transform: rotate(35deg);
+
+}
+
+
+.right-patch {
+
+    right: 28px;
+
+    transform: rotate(-35deg);
+
+}
+
+
+.eye {
+
+    position: absolute;
+
+    top: 24px;
+
+    left: 50%;
+
+    width: 28px;
+
+    height: 34px;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background: #eee;
+
+    overflow: hidden;
+
+}
+
+
+/* pupil */
+
+.pupil {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 50%;
+
+    width: 13px;
+
+    height: 17px;
+
+    transform:
+        translate(-50%,-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 25%,
+            white 0 10%,
+            #222 12%,
+            #000 70%
+        );
+
+    transition:
+        transform .12s ease-out;
+
+}
+
+
+/* shine */
+
+.eye-shine {
+
+    position: absolute;
+
+    width: 5px;
+
+    height: 5px;
+
+    top: 6px;
+
+    left: 7px;
+
+    border-radius: 50%;
+
+    background: white;
+
+}
+
+
+/* =========================================================
+   NOSE
+========================================================= */
+
+.nose {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 118px;
+
+    width: 28px;
+
+    height: 20px;
+
+    transform: translateX(-50%);
+
+    border-radius:
+        45%
+        45%
+        55%
+        55%;
+
+    background:
+        radial-gradient(
+            circle at 35% 25%,
+            #3a3a3c,
+            #050506
+        );
+
+    z-index: 5;
+
+}
+
+
+/* =========================================================
+   MOUTH
+========================================================= */
+
+.mouth {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 136px;
+
+    width: 40px;
+
+    height: 30px;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 4;
+
+}
+
+
+.mouth::before,
+.mouth::after {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    width: 20px;
+
+    height: 12px;
+
+    border-bottom:
+        2px solid #111;
+
+}
+
+
+.mouth::before {
+
+    left: 0;
+
+    transform: rotate(12deg);
+
+}
+
+
+.mouth::after {
+
+    right: 0;
+
+    transform: rotate(-12deg);
+
+}
+
+
+.mouth-inner {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 9px;
+
+    width: 17px;
+
+    height: 9px;
+
+    transform:
+        translateX(-50%)
+        scaleY(.5);
+
+    border-radius: 0 0 50% 50%;
+
+    background: #1b0808;
+
+    transition:
+        transform .12s;
+
+}
+
+
+.panda-character.chewing
+.mouth-inner {
+
+    transform:
+        translateX(-50%)
+        scaleY(1.1);
+
+}
+
+
+/* =========================================================
+   ARMS
+========================================================= */
+
+.panda-arm {
+
+    position: absolute;
+
+    z-index: 12;
+
+    width: 75px;
+
+    height: 150px;
+
+    border-radius: 50px;
+
+    background:
+        linear-gradient(
+            140deg,
+            #303135,
+            #08090b
+        );
+
+}
+
+
+.left-arm {
+
+    left: 55px;
+
+    top: 220px;
+
+    transform:
+        rotate(30deg);
+
+}
+
+
+.right-arm {
+
+    right: 55px;
+
+    top: 220px;
+
+    transform:
+        rotate(-30deg);
+
+}
+
+
+.paw {
+
+    position: absolute;
+
+    bottom: -4px;
+
+    left: 50%;
+
+    width: 65px;
+
+    height: 65px;
+
+    transform:
+        translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 40% 35%,
+            #393a3d,
+            #08090b
+        );
+
+}
+
+
+/* =========================================================
+   BAMBOO
+========================================================= */
+
+.bamboo-holder {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 215px;
+
+    width: 100px;
+
+    height: 190px;
+
+    transform:
+        translateX(-50%)
+        rotate(-18deg);
+
+    z-index: 20;
+
+    transform-origin:
+        bottom center;
+
+    animation:
+        bambooEating 1.8s
+        ease-in-out
+        infinite;
+
+}
+
+
+@keyframes bambooEating {
+
+    0%,
+    100% {
+
+        transform:
+            translateX(-50%)
+            rotate(-18deg)
+            translateY(2px);
+
+    }
+
+    35% {
+
+        transform:
+            translateX(-50%)
+            rotate(-8deg)
+            translateY(-8px);
+
+    }
+
+    55% {
+
+        transform:
+            translateX(-50%)
+            rotate(-13deg)
+            translateY(-4px);
+
+    }
+
+    75% {
+
+        transform:
+            translateX(-50%)
+            rotate(-18deg)
+            translateY(1px);
+
+    }
+
+}
+
+
+.bamboo-stem {
+
+    position: absolute;
+
+    left: 40px;
+
+    bottom: 0;
+
+    width: 18px;
+
+    height: 175px;
+
+    border-radius: 10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #315e20,
+            #73a83d,
+            #274d1d
+        );
+
+    box-shadow:
+        inset -3px 0 4px rgba(0,0,0,.35);
+
+}
+
+
+.bamboo-node {
+
+    position: absolute;
+
+    left: -3px;
+
+    width: 24px;
+
+    height: 8px;
+
+    border-radius: 5px;
+
+    background: #254b1b;
+
+}
+
+
+.node-one {
+    bottom: 40px;
+}
+
+
+.node-two {
+    bottom: 90px;
+}
+
+
+.node-three {
+    bottom: 140px;
+}
+
+
+/* leaves */
+
+.bamboo-leaf {
+
+    position: absolute;
+
+    width: 45px;
+
+    height: 18px;
+
+    border-radius:
+        100% 0 100% 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            #315f20,
+            #79ad43
+        );
+
+}
+
+
+.leaf-one {
+
+    top: 25px;
+
+    left: 12px;
+
+    transform:
+        rotate(-30deg);
+
+}
+
+
+.leaf-two {
+
+    top: 58px;
+
+    left: -35px;
+
+    transform:
+        rotate(25deg);
+
+}
+
+
+.leaf-three {
+
+    top: 95px;
+
+    left: 10px;
+
+    transform:
+        rotate(-35deg);
+
+}
+
+
+.leaf-four {
+
+    top: 120px;
+
+    left: -35px;
+
+    transform:
+        rotate(25deg);
+
+}
+
+
+/* =========================================================
+   PANDA CAPTION
+========================================================= */
+
+.panda-caption {
+
+    position: absolute;
+
+    bottom: 25px;
+
+    padding: 9px 15px;
+
+    display: flex;
+
+    align-items: center;
+
+    border: 1px solid var(--border);
+
+    background: rgba(255,255,255,.035);
+
+    backdrop-filter: blur(15px);
+
+    border-radius: 100px;
+
+    color: var(--text-dark);
+
+    font-size: 9px;
+
+    letter-spacing: 1px;
+
+}
+
+
+.caption-dot {
+
+    width: 6px;
+
+    height: 6px;
+
+    margin-right: 8px;
+
+    border-radius: 50%;
+
+    background: var(--cyan);
+
+    box-shadow:
+        0 0 10px var(--cyan);
+
+}
+
+
+/* =========================================================
+   GENERAL SECTIONS
+========================================================= */
+
+.section {
+
+    width: min(92%,var(--max-width));
+
+    margin: auto;
+
+    padding: 160px 0;
+
+}
+
+
+.section-label {
+
+    margin-bottom: 28px;
+
+    color: var(--purple);
+
+    font-size: 10px;
+
+    letter-spacing: 3px;
+
+    font-weight: 600;
+
+}
+
+
+.section-heading h2 {
+
+    font-family: 'Space Grotesk';
+
+    font-size: clamp(42px,6vw,74px);
+
+    line-height: .98;
+
+    letter-spacing: -3px;
+
+}
+
+
+.section-heading h2 span {
+
+    display: block;
+
+    color: var(--text-dark);
+
+}
+
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+.about-layout {
+
+    display: grid;
+
+    grid-template-columns: 1.3fr .7fr;
+
+    gap: 90px;
+
+    margin-top: 75px;
+
+}
+
+
+.about-description p {
+
+    max-width: 680px;
+
+    margin-bottom: 25px;
+
+    color: var(--text-soft);
+
+    font-size: 16px;
+
+    line-height: 1.9;
+
+}
+
+
+.about-description strong {
+
+    color: white;
+
+}
+
+
+.about-cards {
+
+    display: grid;
+
+    gap: 12px;
+
+}
+
+
+.about-card {
+
+    padding: 25px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    background: var(--card);
+
+    transition: .35s;
+
+}
+
+
+.about-card:hover {
+
+    transform: translateX(6px);
+
+    border-color:
+        rgba(157,124,255,.45);
+
+}
+
+
+.about-card span {
+
+    color: var(--purple);
+
+    font-size: 10px;
+
+}
+
+
+.about-card strong {
+
+    display: block;
+
+    margin-top: 12px;
+
+    font-family: 'Space Grotesk';
+
+    font-size: 23px;
+
+}
+
+
+.about-card p {
+
+    margin-top: 8px;
+
+    color: var(--text-dark);
+
+    font-size: 11px;
+
+}
+
+
+/* =========================================================
+   SKILLS
+========================================================= */
+
+.skills-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap: 15px;
+
+    margin-top: 75px;
+
+}
+
+
+.skill-card {
+
+    min-height: 350px;
+
+    padding: 28px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 18px;
+
+    background: var(--card);
+
+    transition: .4s;
+
+}
+
+
+.skill-card:hover {
+
+    transform:
+        translateY(-8px);
+
+    border-color:
+        rgba(157,124,255,.45);
+
+}
+
+
+.skill-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    color: var(--text-dark);
+
+    font-size: 9px;
+
+}
+
+
+.skill-top span:first-child {
+
+    color: var(--purple);
+
+}
+
+
+.skill-icon {
+
+    margin-top: 65px;
+
+    font-family: 'Space Grotesk';
+
+    font-size: 38px;
+
+}
+
+
+.skill-card h3 {
+
+    margin-top: 25px;
+
+    font-family: 'Space Grotesk';
+
+    font-size: 24px;
+
+}
+
+
+.skill-card p {
+
+    margin-top: 12px;
+
+    color: var(--text-dark);
+
+    font-size: 11px;
+
+    line-height: 1.7;
+
+}
+
+
+.skill-tags {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+
+    margin-top: 20px;
+
+}
+
+
+.skill-tags span {
+
+    padding: 5px 8px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 100px;
+
+    color: var(--text-dark);
+
+    font-size: 8px;
+
+}
+
+
+/* =========================================================
+   PROJECTS
+========================================================= */
+
+.projects-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap: 15px;
+
+    margin-top: 75px;
+
+}
+
+
+.project-card {
+
+    position: relative;
+
+    min-height: 420px;
+
+    padding: 35px;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border);
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.055),
+            rgba(255,255,255,.012)
+        );
+
+    transition: .4s;
+
+}
+
+
+.project-card:hover {
+
+    transform:
+        translateY(-8px);
+
+    border-color:
+        rgba(157,124,255,.45);
+
+}
+
+
+.project-large {
+
+    grid-column: span 2;
+
+    min-height: 480px;
+
+}
+
+
+.project-number {
+
+    color: var(--text-dark);
+
+    font-size: 11px;
+
+}
+
+
+.project-background-number {
+
+    position: absolute;
+
+    top: -100px;
+
+    right: -20px;
+
+    font-family: 'Space Grotesk';
+
+    font-size: 400px;
+
+    color:
+        rgba(255,255,255,.018);
+
+}
+
+
+.project-content {
+
+    position: absolute;
+
+    left: 35px;
+
+    bottom: 35px;
+
+    max-width: 620px;
+
+}
+
+
+.project-category {
+
+    color: var(--cyan);
+
+    font-size: 9px;
+
+    letter-spacing: 3px;
+
+}
+
+
+.project-content h3 {
+
+    margin-top: 10px;
+
+    font-family: 'Space Grotesk';
+
+    font-size: 38px;
+
+}
+
+
+.project-content p {
+
+    margin-top: 15px;
+
+    color: var(--text-soft);
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+}
+
+
+.project-tags {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-top: 20px;
+
+}
+
+
+.project-tags span {
+
+    padding: 7px 11px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 100px;
+
+    color: var(--text-dark);
+
+    font-size: 9px;
+
+}
+
+
+.project-arrow {
+
+    position: absolute;
+
+    top: 30px;
+
+    right: 30px;
+
+    width: 40px;
+
+    height: 40px;
+
+    display: grid;
+
+    place-items: center;
+
+    border: 1px solid var(--border);
+
+    border-radius: 50%;
+
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.timeline {
+
+    max-width: 850px;
+
+    margin: 80px auto 0;
+
+}
+
+
+.timeline-item {
+
+    display: grid;
+
+    grid-template-columns:
+        50px 1px 1fr;
+
+    gap: 25px;
+
+    min-height: 150px;
+
+}
+
+
+.timeline-number {
+
+    color: var(--purple);
+
+}
+
+
+.timeline-line {
+
+    position: relative;
+
+    width: 1px;
+
+    height: 100%;
+
+    background: var(--border);
+
+}
+
+
+.timeline-line::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: -4px;
+
+    width: 9px;
+
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: var(--purple);
+
+    box-shadow:
+        0 0 18px var(--purple);
+
+}
+
+
+.timeline-content {
+
+    padding-bottom: 45px;
+
+}
+
+
+.timeline-content > span {
+
+    color: var(--text-dark);
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.timeline-content h3 {
+
+    margin-top: 10px;
+
+    font-family: 'Space Grotesk';
+
+    font-size: 25px;
+
+}
+
+
+.timeline-content p {
+
+    margin-top: 10px;
+
+    color: var(--text-dark);
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   CONTACT
+========================================================= */
+
+.contact-section {
+
+    width: min(92%,var(--max-width));
+
+    margin: auto;
+
+    padding: 190px 0;
+
+    text-align: center;
+
+}
+
+
+.contact-content h2 {
+
+    font-family: 'Space Grotesk';
+
+    font-size:
+        clamp(50px,8vw,105px);
+
+    line-height: .92;
+
+    letter-spacing: -5px;
+
+}
+
+
+.contact-content h2 span {
+
+    display: block;
+
+    color: var(--purple);
+
+}
+
+
+.contact-content > p {
+
+    max-width: 550px;
+
+    margin: 30px auto;
+
+    color: var(--text-dark);
+
+    font-size: 13px;
+
+    line-height: 1.8;
+
+}
+
+
+.contact-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 16px 25px;
+
+    border-radius: 100px;
+
+    background: white;
+
+    color: #05070b;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+
+    width: min(92%,var(--max-width));
+
+    margin: auto;
+
+    padding: 30px 0;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    border-top: 1px solid var(--border);
+
+    color: var(--text-dark);
+
+    font-size: 10px;
+
+}
+
+
+.footer-links {
+
+    display: flex;
+
+    gap: 20px;
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media(max-width:1050px) {
+
+    .navigation {
+        gap: 17px;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+        padding-top: 150px;
+    }
+
+    .hero-content {
+        text-align: center;
+    }
+
+    .hero-intro {
+        justify-content: center;
+    }
+
+    .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .developer-status {
+        justify-content: center;
+    }
+
+    .hero-mini-info {
+        justify-content: center;
+    }
+
+    .panda-stage {
+        height: 600px;
+    }
+
+    .about-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .skills-grid {
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:700px) {
+
+    .navigation,
+    .nav-contact {
+        display: none;
+    }
+
+    .menu-button {
+        display: block;
+    }
+
+    .hero {
+        width: 90%;
+        padding-top: 120px;
+    }
+
+    .hero-title {
+        font-size: 47px;
+        letter-spacing: -2.5px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    .button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .panda-stage {
+        height: 500px;
+    }
+
+    .panda-character {
+        transform: scale(.78);
+    }
+
+    .panda-ring.ring-large {
+        width: 390px;
+        height: 390px;
+    }
+
+    .panda-ring.ring-medium {
+        width: 320px;
+        height: 320px;
+    }
+
+    .panda-ring.ring-small {
+        width: 250px;
+        height: 250px;
+    }
+
+    .skills-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .project-large {
+        grid-column: span 1;
+    }
+
+    .project-content h3 {
+        font-size: 29px;
+    }
+
+    .section {
+        padding: 110px 0;
+    }
+
+    .timeline-item {
+        grid-template-columns:
+            35px 1px 1fr;
+
+        gap: 15px;
+    }
+
+    .contact-content h2 {
+        font-size: 55px;
+        letter-spacing: -3px;
+    }
+
+    footer {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+}
