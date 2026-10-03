@@ -1,405 +1,683 @@
 /* =========================================================
+   THREE.JS
+========================================================= */
+
+import * as THREE from "three";
+
+import {
+    GLTFLoader
+} from "three/addons/loaders/GLTFLoader.js";
+
+
+/* =========================================================
    CUSTOM CURSOR
 ========================================================= */
 
-const cursor =
-    document.querySelector(".cursor");
-
-const cursorDot =
-    document.querySelector(".cursor-dot");
-
+const cursor = document.querySelector(".cursor");
+const cursorDot = document.querySelector(".cursor-dot");
 
 let mouseX = window.innerWidth / 2;
-
 let mouseY = window.innerHeight / 2;
 
 let cursorX = mouseX;
-
 let cursorY = mouseY;
 
-
-document.addEventListener(
-    "mousemove",
-    function(event) {
-
-        mouseX = event.clientX;
-
-        mouseY = event.clientY;
-
-    }
-);
-
+window.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
 
 function animateCursor() {
 
-    cursorX +=
-        (mouseX - cursorX) * .15;
+    cursorX += (mouseX - cursorX) * 0.12;
+    cursorY += (mouseY - cursorY) * 0.12;
 
-    cursorY +=
-        (mouseY - cursorY) * .15;
-
-
-    if(cursor) {
-
-        cursor.style.left =
-            cursorX + "px";
-
-        cursor.style.top =
-            cursorY + "px";
-
+    if (cursor) {
+        cursor.style.transform =
+            `translate3d(${cursorX}px, ${cursorY}px, 0)`;
     }
 
-
-    if(cursorDot) {
-
-        cursorDot.style.left =
-            mouseX + "px";
-
-        cursorDot.style.top =
-            mouseY + "px";
-
+    if (cursorDot) {
+        cursorDot.style.transform =
+            `translate3d(${mouseX}px, ${mouseY}px, 0)`;
     }
 
-
-    requestAnimationFrame(
-        animateCursor
-    );
-
+    requestAnimationFrame(animateCursor);
 }
-
 
 animateCursor();
 
 
 /* =========================================================
-   PANDA EYE TRACKING
+   3D CHARACTER
 ========================================================= */
 
-const panda =
-    document.querySelector(
-        ".panda-character"
-    );
+const characterContainer =
+    document.querySelector("#character3D");
 
-
-const pupils =
-    document.querySelectorAll(
-        ".pupil"
-    );
-
-
-const pandaStage =
-    document.querySelector(
-        ".panda-stage"
-    );
-
-
-document.addEventListener(
-    "mousemove",
-    function(event) {
-
-        if(!panda) return;
-
-
-        const pandaRect =
-            panda.getBoundingClientRect();
-
-
-        const pandaCenterX =
-            pandaRect.left +
-            pandaRect.width / 2;
-
-
-        const pandaCenterY =
-            pandaRect.top +
-            pandaRect.height / 3;
-
-
-        const dx =
-            event.clientX -
-            pandaCenterX;
-
-
-        const dy =
-            event.clientY -
-            pandaCenterY;
-
-
-        /*
-         * Limit the eye movement.
-         * This keeps the panda looking natural.
-         */
-
-        const maxMove = 8;
-
-
-        let eyeX =
-            Math.max(
-                -maxMove,
-                Math.min(
-                    maxMove,
-                    dx / 45
-                )
-            );
-
-
-        let eyeY =
-            Math.max(
-                -maxMove,
-                Math.min(
-                    maxMove,
-                    dy / 55
-                )
-            );
-
-
-        pupils.forEach(
-            function(pupil) {
-
-                pupil.style.transform =
-                    `
-                    translate(
-                        calc(-50% + ${eyeX}px),
-                        calc(-50% + ${eyeY}px)
-                    )
-                    `;
-
-            }
-        );
-
-
-        /*
-         * Slight head movement.
-         */
-
-        const head =
-            document.querySelector(
-                ".panda-head"
-            );
-
-
-        if(head) {
-
-            const headX =
-                Math.max(
-                    -4,
-                    Math.min(
-                        4,
-                        dx / 150
-                    )
-                );
-
-
-            const headY =
-                Math.max(
-                    -3,
-                    Math.min(
-                        3,
-                        dy / 180
-                    )
-                );
-
-
-            head.style.transform =
-                `
-                translateX(-50%)
-                translate(
-                    ${headX}px,
-                    ${headY}px
-                )
-                `;
-
-        }
-
-    }
-);
+let scene;
+let camera;
+let renderer;
+let character;
 
 
 /* =========================================================
-   PANDA CHEWING
+   CHARACTER SETTINGS
 ========================================================= */
 
-const pandaCharacter =
-    document.querySelector(
-        ".panda-character"
-    );
+const MODEL_FRONT_ROTATION = Math.PI; 
+const FACE_LEFT_OFFSET = THREE.MathUtils.degToRad(60); 
+const CHARACTER_SIZE = 2.35;
+const CHARACTER_Y = -0.62;
 
 
-function chewingAnimation() {
+/* =========================================================
+   EYE TRACKING
+========================================================= */
 
-    if(!pandaCharacter) return;
+const eyeObjects = [];
+const eyeData = [];
+
+let targetEyeX = 0;
+let targetEyeY = 0;
+
+let currentEyeX = 0;
+let currentEyeY = 0;
 
 
-    pandaCharacter.classList.add(
-        "chewing"
-    );
+/* =========================================================
+   ORBITING CODE / DATA PARTICLES ANIMATION VARIABLES
+========================================================= */
 
+const codeSymbols = ["</>", "{ }", "01", "C++", "PY", "JS", "DB", "fn()"];
+const orbitingGroup = new THREE.Group();
+const codeElements = [];
+const particleCount = 20;
+const orbitRadius = 1.8;
 
-    setTimeout(
-        function() {
+ // Create clean text textures with zero shadow blur box artifacts
+function createTextTexture(text) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    
+    // Clear canvas completely transparent
+    ctx.clearRect(0, 0, 1024, 1024);
 
-            pandaCharacter.classList.remove(
-                "chewing"
-            );
+    // Draw crisp text without canvas shadow blur to eliminate square borders
+    ctx.font = "bold 60px 'Space Grotesk', monospace";
+    ctx.fillStyle = "#ff002b"; 
+    ctx.shadowColor = "#ff0062";
+    ctx.shadowBlur = 15;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 512, 512);
 
-        },
-        250
-    );
-
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
 }
 
-
-/*
- * Panda chews continuously,
- * but not at robotic intervals.
- */
-
-setInterval(
-    chewingAnimation,
-    1300
-);
-
-
 /* =========================================================
-   BLINKING
+   INITIALIZE CHARACTER
 ========================================================= */
 
-const eyes =
-    document.querySelectorAll(
-        ".eye"
+function initCharacter() {
+
+    if (!characterContainer) return;
+
+
+    /* -----------------------------------------------------
+       SCENE
+    ----------------------------------------------------- */
+
+    scene = new THREE.Scene();
+    scene.add(orbitingGroup);
+
+
+    /* -----------------------------------------------------
+       CAMERA
+    ----------------------------------------------------- */
+
+    camera = new THREE.PerspectiveCamera(
+        32,
+        characterContainer.clientWidth /
+        characterContainer.clientHeight,
+        0.1,
+        100
+    );
+
+    camera.position.set(
+        0,
+        0.55,
+        5.4
     );
 
 
-function pandaBlink() {
+    /* -----------------------------------------------------
+       RENDERER
+    ----------------------------------------------------- */
 
-    eyes.forEach(
-        function(eye) {
+    renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance"
+    });
+    renderer.setClearColor(0x000000, 0);
 
-            eye.style.transform =
-                "translateX(-50%) scaleY(.08)";
+    renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio, 2)
+    );
 
-        }
+    renderer.setSize(
+        characterContainer.clientWidth,
+        characterContainer.clientHeight
+    );
+
+    renderer.outputColorSpace =
+        THREE.SRGBColorSpace;
+
+    renderer.shadowMap.enabled = true;
+
+    renderer.shadowMap.type =
+        THREE.PCFSoftShadowMap;
+
+    characterContainer.appendChild(
+        renderer.domElement
     );
 
 
-    setTimeout(
-        function() {
+    /* =====================================================
+       LIGHTING
+    ===================================================== */
 
-            eyes.forEach(
-                function(eye) {
+    const ambientLight =
+        new THREE.AmbientLight(
+            0xffffff,
+            2.2
+        );
 
-                    eye.style.transform =
-                        "translateX(-50%) scaleY(1)";
+    scene.add(ambientLight);
 
+
+    /* Main light */
+
+    const mainLight =
+        new THREE.DirectionalLight(
+            0xffffff,
+            3
+        );
+
+    mainLight.position.set(
+        3,
+        5,
+        5
+    );
+
+    mainLight.castShadow = true;
+
+    scene.add(mainLight);
+
+
+    /* Purple fill */
+
+    const purpleLight =
+        new THREE.PointLight(
+            0x9d7cff,
+            1.4,
+            8
+        );
+
+    purpleLight.position.set(
+        -3,
+        2,
+        2
+    );
+
+    scene.add(purpleLight);
+
+
+    /* Cyan rim light */
+
+    const cyanLight =
+        new THREE.PointLight(
+            0x68e6dc,
+            6,
+            10
+        );
+
+    cyanLight.position.set(
+        3,
+        1,
+        -3
+    );
+
+    scene.add(cyanLight);
+
+
+    /* =====================================================
+       SETUP ORBITING CODE PARTICLES
+    ===================================================== */
+
+    for (let i = 0; i < particleCount; i++) {
+        const symbol = codeSymbols[i % codeSymbols.length];
+        const texture = createTextTexture(symbol);
+        
+        const material = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            opacity: 1.0,
+            depthWrite: false, // Prevents depth fighting / square box cutting
+            blending: THREE.AdditiveBlending
+        });
+
+        const sprite = new THREE.Sprite(material);
+        sprite.scale.set(0.9, 0.9, 0.9);
+
+        const angle = (i / particleCount) * Math.PI * 2;
+        const yOffset = (Math.random() - 0.5) * 1.8;
+        
+        codeElements.push({
+            sprite: sprite,
+            angle: angle,
+            radius: orbitRadius + (Math.random() * 0.4 - 0.2),
+            speed: 0.35 + Math.random() * 0.25,
+            yPos: yOffset,
+            ySpeed: 1.2 + Math.random()
+        });
+
+        orbitingGroup.add(sprite);
+    }
+
+    /* =====================================================
+       LOAD GLB
+    ===================================================== */
+
+    const loader = new GLTFLoader();
+
+    loader.load(
+        "models/character.glb",
+
+        (gltf) => {
+
+            character = gltf.scene;
+
+            scene.add(character);
+
+
+            /* =================================================
+               INITIAL MODEL ROTATION
+            ================================================= */
+
+            character.rotation.set(
+                0,
+                MODEL_FRONT_ROTATION + FACE_LEFT_OFFSET,
+                0
+            );
+
+
+            /* =================================================
+               FIND MESHES + EYES
+            ================================================= */
+
+            character.traverse((object) => {
+
+                if (object.isMesh) {
+
+                    object.castShadow = true;
+                    object.receiveShadow = true;
+
+
+                    /* -----------------------------------------
+                       EYE DETECTION
+                    ----------------------------------------- */
+
+                    const name =
+                        object.name.toLowerCase();
+
+                    const isEye =
+                        name.includes("eye") ||
+                        name.includes("eyeball") ||
+                        name.includes("eye_l") ||
+                        name.includes("eye_r") ||
+                        name.includes("lefteye") ||
+                        name.includes("righteye") ||
+                        name.includes("pupil") ||
+                        name.includes("iris");
+
+                    if (isEye) {
+
+                        eyeObjects.push(object);
+
+                        eyeData.push({
+                            object: object,
+                            rotationX: object.rotation.x,
+                            rotationY: object.rotation.y,
+                            rotationZ: object.rotation.z
+                        });
+                    }
                 }
+            });
+
+
+            /* =================================================
+               CENTER + SCALE MODEL
+            ================================================= */
+
+            const box =
+                new THREE.Box3().setFromObject(
+                    character
+                );
+
+            const size =
+                box.getSize(
+                    new THREE.Vector3()
+                );
+
+            const center =
+                box.getCenter(
+                    new THREE.Vector3()
+                );
+
+
+            /* Move model to origin */
+
+            character.position.sub(center);
+
+
+            /* Scale */
+
+            const maxDimension =
+                Math.max(
+                    size.x,
+                    size.y,
+                    size.z
+                );
+
+            const scale =
+                CHARACTER_SIZE /
+                maxDimension;
+
+            character.scale.setScalar(scale);
+
+
+            /* Re-center after scaling */
+
+            const scaledBox =
+                new THREE.Box3().setFromObject(
+                    character
+                );
+
+            const scaledCenter =
+                scaledBox.getCenter(
+                    new THREE.Vector3()
+                );
+
+            character.position.sub(
+                scaledCenter
+            );
+
+
+            /* =================================================
+               FINAL POSITION
+            ================================================= */
+
+            character.position.set(
+                0,
+                CHARACTER_Y,
+                0
+            );
+
+
+            /* =================================================
+               FINAL FRONT-LEFT ROTATION
+            ================================================= */
+
+            character.rotation.set(
+                0,
+                MODEL_FRONT_ROTATION + FACE_LEFT_OFFSET,
+                0
+            );
+
+
+            /* =================================================
+               CAMERA
+            ================================================= */
+
+            camera.position.set(
+                0,
+                0.55,
+                5.4
+            );
+
+            camera.lookAt(
+                0,
+                0.15,
+                0
+            );
+
+
+            console.log(
+                "Character loaded successfully"
+            );
+
+            console.log(
+                "Detected eyes:",
+                eyeObjects.length
             );
 
         },
-        150
+
+        /* =====================================================
+           LOADING PROGRESS
+        ===================================================== */
+
+        (xhr) => {
+
+            if (xhr.total) {
+
+                const percent =
+                    (xhr.loaded / xhr.total) * 100;
+
+                console.log(
+                    `Character loading: ${percent.toFixed(0)}%`
+                );
+            }
+        },
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        (error) => {
+
+            console.error(
+                "Error loading character.glb:",
+                error
+            );
+        }
     );
 
-}
+
+    /* =====================================================
+       MOUSE TRACKING
+    ===================================================== */
+
+    window.addEventListener(
+        "mousemove",
+        (event) => {
+
+            const normalizedX =
+                (event.clientX /
+                    window.innerWidth) *
+                    2 -
+                1;
+
+            const normalizedY =
+                (event.clientY /
+                    window.innerHeight) *
+                    2 -
+                1;
 
 
-/*
- * Natural-looking random blink.
- */
+            /*
+               Eye movement amount
+            */
 
-function randomBlink() {
+            targetEyeX =
+                normalizedX * 0.28;
 
-    pandaBlink();
-
-
-    const nextBlink =
-        2500 +
-        Math.random() * 3500;
-
-
-    setTimeout(
-        randomBlink,
-        nextBlink
+            targetEyeY =
+                normalizedY * 0.16;
+        }
     );
 
+
+    /* =====================================================
+       RESIZE
+    ===================================================== */
+
+    window.addEventListener(
+        "resize",
+        resizeCharacter
+    );
+
+
+    resizeCharacter();
+
+    animateCharacter();
 }
-
-
-setTimeout(
-    randomBlink,
-    2500
-);
 
 
 /* =========================================================
-   PANDA SUBTLE CURSOR RESPONSE
+   CHARACTER ANIMATION
 ========================================================= */
 
-document.addEventListener(
-    "mousemove",
-    function(event) {
+function animateCharacter() {
 
-        if(!pandaStage) return;
+    requestAnimationFrame(
+        animateCharacter
+    );
 
-
-        const rect =
-            pandaStage.getBoundingClientRect();
-
-
-        const centerX =
-            rect.left +
-            rect.width / 2;
+    const time =
+        performance.now() * 0.001;
 
 
-        const centerY =
-            rect.top +
-            rect.height / 2;
+    /* -----------------------------------------------------
+       Smooth eye movement
+    ----------------------------------------------------- */
+
+    currentEyeX +=
+        (targetEyeX - currentEyeX) * 0.08;
+
+    currentEyeY +=
+        (targetEyeY - currentEyeY) * 0.08;
 
 
-        const dx =
-            event.clientX -
-            centerX;
+    /* -----------------------------------------------------
+       Move eyes
+    ----------------------------------------------------- */
+
+    eyeData.forEach((eye) => {
+
+        if (!eye.object) return;
 
 
-        const dy =
-            event.clientY -
-            centerY;
+        eye.object.rotation.y =
+            eye.rotationY +
+            currentEyeX;
+
+        eye.object.rotation.x =
+            eye.rotationX -
+            currentEyeY;
+
+        eye.object.rotation.z =
+            eye.rotationZ;
+    });
 
 
-        /*
-         * Tiny body movement.
-         */
+    /* -----------------------------------------------------
+       Gentle floating animation
+    ----------------------------------------------------- */
 
-        const moveX =
-            Math.max(
-                -5,
-                Math.min(
-                    5,
-                    dx / 300
-                )
-            );
+    if (character) {
 
-
-        const moveY =
-            Math.max(
-                -3,
-                Math.min(
-                    3,
-                    dy / 350
-                )
-            );
-
-
-        pandaCharacter.style.setProperty(
-            "--mouse-x",
-            `${moveX}px`
-        );
-
-
-        pandaCharacter.style.setProperty(
-            "--mouse-y",
-            `${moveY}px`
-        );
-
+        character.position.y =
+            CHARACTER_Y +
+            Math.sin(time * 1.4) * 0.025;
     }
-);
+
+
+    /* -----------------------------------------------------
+       Animate Orbiting Code Particles
+    ----------------------------------------------------- */
+
+    codeElements.forEach((el) => {
+        el.angle += el.speed * 0.016; 
+        
+        el.sprite.position.x = Math.cos(el.angle) * el.radius;
+        el.sprite.position.z = Math.sin(el.angle) * el.radius;
+        el.sprite.position.y = el.yPos + Math.sin(time * el.ySpeed) * 0.15;
+    });
+
+
+    /* -----------------------------------------------------
+       Render
+    ----------------------------------------------------- */
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+
+/* =========================================================
+   RESIZE CHARACTER
+========================================================= */
+
+function resizeCharacter() {
+
+    if (!characterContainer ||
+        !camera ||
+        !renderer) {
+        return;
+    }
+
+
+    const width =
+        characterContainer.clientWidth;
+
+    const height =
+        characterContainer.clientHeight;
+
+
+    if (width === 0 || height === 0) {
+        return;
+    }
+
+
+    camera.aspect =
+        width / height;
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+        width,
+        height,
+        true
+    );
+}
+
+
+/* =========================================================
+   START CHARACTER
+========================================================= */
+
+initCharacter();
 
 
 /* =========================================================
@@ -407,50 +685,22 @@ document.addEventListener(
 ========================================================= */
 
 const menuButton =
-    document.querySelector(
-        ".menu-button"
-    );
-
+    document.querySelector(".menu-button");
 
 const mobileMenu =
-    document.querySelector(
-        ".mobile-menu"
-    );
+    document.querySelector(".mobile-menu");
 
-
-if(menuButton && mobileMenu) {
+if (menuButton && mobileMenu) {
 
     menuButton.addEventListener(
         "click",
-        function() {
+        () => {
 
             mobileMenu.classList.toggle(
                 "open"
             );
-
         }
     );
-
-
-    mobileMenu
-        .querySelectorAll("a")
-        .forEach(
-            function(link) {
-
-                link.addEventListener(
-                    "click",
-                    function() {
-
-                        mobileMenu.classList.remove(
-                            "open"
-                        );
-
-                    }
-                );
-
-            }
-        );
-
 }
 
 
@@ -458,205 +708,166 @@ if(menuButton && mobileMenu) {
    ACTIVE NAVIGATION
 ========================================================= */
 
+const sections =
+    document.querySelectorAll("main section");
+
 const navLinks =
     document.querySelectorAll(
-        ".nav-link"
+        ".nav-links a"
     );
 
+window.addEventListener(
+    "scroll",
+    () => {
 
-const sections =
-    document.querySelectorAll(
-        "section[id]"
-    );
+        let currentSection = "";
 
+        sections.forEach((section) => {
 
-function updateNavigation() {
+            const sectionTop =
+                section.offsetTop - 180;
 
-    let current = "";
-
-
-    sections.forEach(
-        function(section) {
-
-            const top =
-                section.offsetTop;
-
-
-            if(
+            if (
                 window.scrollY >=
-                top - 250
+                sectionTop
             ) {
 
-                current =
-                    section.id;
-
+                currentSection =
+                    section.getAttribute("id");
             }
-
-        }
-    );
+        });
 
 
-    navLinks.forEach(
-        function(link) {
+        navLinks.forEach((link) => {
 
             link.classList.remove(
                 "active"
             );
 
+            const href =
+                link.getAttribute("href");
 
-            if(
-                link.getAttribute("href") ===
-                "#" + current
+            if (
+                href ===
+                `#${currentSection}`
             ) {
 
                 link.classList.add(
                     "active"
                 );
-
             }
-
-        }
-    );
-
-}
-
-
-window.addEventListener(
-    "scroll",
-    updateNavigation
+        });
+    }
 );
-
-
-updateNavigation();
 
 
 /* =========================================================
    CARD TILT
 ========================================================= */
 
-const cards =
+const tiltCards =
     document.querySelectorAll(
         ".project-card, .skill-card"
     );
 
+tiltCards.forEach((card) => {
 
-cards.forEach(
-    function(card) {
+    card.addEventListener(
+        "mousemove",
+        (event) => {
 
-        card.addEventListener(
-            "mousemove",
-            function(event) {
+            const rect =
+                card.getBoundingClientRect();
 
-                const rect =
-                    card.getBoundingClientRect();
+            const x =
+                event.clientX -
+                rect.left;
 
-
-                const x =
-                    event.clientX -
-                    rect.left;
-
-
-                const y =
-                    event.clientY -
-                    rect.top;
+            const y =
+                event.clientY -
+                rect.top;
 
 
-                const centerX =
-                    rect.width / 2;
+            const centerX =
+                rect.width / 2;
+
+            const centerY =
+                rect.height / 2;
 
 
-                const centerY =
-                    rect.height / 2;
+            const rotateX =
+                ((y - centerY) /
+                    centerY) *
+                -3;
+
+            const rotateY =
+                ((x - centerX) /
+                    centerX) *
+                3;
 
 
-                const rotateX =
-                    ((y - centerY) /
-                    centerY) * -2;
+            card.style.transform =
+                `perspective(800px)
+                 rotateX(${rotateX}deg)
+                 rotateY(${rotateY}deg)
+                 translateY(-4px)`;
+        }
+    );
 
 
-                const rotateY =
-                    ((x - centerX) /
-                    centerX) * 2;
+    card.addEventListener(
+        "mouseleave",
+        () => {
 
-
-                card.style.transform =
-                    `
-                    perspective(900px)
-                    rotateX(${rotateX}deg)
-                    rotateY(${rotateY}deg)
-                    translateY(-6px)
-                    `;
-
-            }
-        );
-
-
-        card.addEventListener(
-            "mouseleave",
-            function() {
-
-                card.style.transform = "";
-
-            }
-        );
-
-    }
-);
+            card.style.transform =
+                "";
+        }
+    );
+});
 
 
 /* =========================================================
-   BUTTON MAGNETIC EFFECT
+   MAGNETIC BUTTONS
 ========================================================= */
 
-const buttons =
+const magneticButtons =
     document.querySelectorAll(
         ".button, .contact-button"
     );
 
+magneticButtons.forEach((button) => {
 
-buttons.forEach(
-    function(button) {
+    button.addEventListener(
+        "mousemove",
+        (event) => {
 
-        button.addEventListener(
-            "mousemove",
-            function(event) {
+            const rect =
+                button.getBoundingClientRect();
 
-                const rect =
-                    button.getBoundingClientRect();
+            const x =
+                event.clientX -
+                (rect.left +
+                    rect.width / 2);
 
-
-                const x =
-                    event.clientX -
-                    rect.left -
-                    rect.width / 2;
-
-
-                const y =
-                    event.clientY -
-                    rect.top -
-                    rect.height / 2;
+            const y =
+                event.clientY -
+                (rect.top +
+                    rect.height / 2);
 
 
-                button.style.transform =
-                    `
-                    translate(
-                        ${x * .08}px,
-                        ${y * .08}px
-                    )
-                    `;
-
-            }
-        );
+            button.style.transform =
+                `translate(${x * 0.08}px,
+                           ${y * 0.08}px)`;
+        }
+    );
 
 
-        button.addEventListener(
-            "mouseleave",
-            function() {
+    button.addEventListener(
+        "mouseleave",
+        () => {
 
-                button.style.transform = "";
-
-            }
-        );
-
-    }
-);
+            button.style.transform =
+                "";
+        }
+    );
+});
