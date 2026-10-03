@@ -10,7 +10,7 @@ import {
 
 
 /* =========================================================
-   CUSTOM CURSOR
+   GOD-TIER FLUID AMBIENT GLOW CURSOR & CLICK RIPPLE
 ========================================================= */
 
 const cursor = document.querySelector(".cursor");
@@ -28,24 +28,35 @@ window.addEventListener("mousemove", (e) => {
 });
 
 function animateCursor() {
-
-    cursorX += (mouseX - cursorX) * 0.12;
-    cursorY += (mouseY - cursorY) * 0.12;
+    // Smooth trailing interpolation (lerp) for the ambient glow ring
+    cursorX += (mouseX - cursorX) * 0.18;
+    cursorY += (mouseY - cursorY) * 0.18;
 
     if (cursor) {
-        cursor.style.transform =
-            `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+        cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
     }
 
     if (cursorDot) {
-        cursorDot.style.transform =
-            `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+        cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
     }
 
     requestAnimationFrame(animateCursor);
 }
 
 animateCursor();
+
+// Click Ripple Shockwave
+window.addEventListener("click", (e) => {
+    const ripple = document.createElement("div");
+    ripple.classList.add("cursor-ripple");
+    ripple.style.left = `${e.clientX}px`;
+    ripple.style.top = `${e.clientY}px`;
+    document.body.appendChild(ripple);
+
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
+});
 
 
 /* =========================================================
@@ -86,40 +97,6 @@ let currentEyeY = 0;
 
 
 /* =========================================================
-   ORBITING CODE / DATA PARTICLES ANIMATION VARIABLES
-========================================================= */
-
-const codeSymbols = ["</>", "{ }", "01", "C++", "PY", "JS", "DB", "fn()"];
-const orbitingGroup = new THREE.Group();
-const codeElements = [];
-const particleCount = 20;
-const orbitRadius = 1.8;
-
- // Create clean text textures with zero shadow blur box artifacts
-function createTextTexture(text) {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1024;
-    canvas.height = 1024;
-    const ctx = canvas.getContext("2d");
-    
-    // Clear canvas completely transparent
-    ctx.clearRect(0, 0, 1024, 1024);
-
-    // Draw crisp text without canvas shadow blur to eliminate square borders
-    ctx.font = "bold 60px 'Space Grotesk', monospace";
-    ctx.fillStyle = "#ff002b"; 
-    ctx.shadowColor = "#ff0062";
-    ctx.shadowBlur = 15;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, 512, 512);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-}
-
-/* =========================================================
    INITIALIZE CHARACTER
 ========================================================= */
 
@@ -133,7 +110,6 @@ function initCharacter() {
     ----------------------------------------------------- */
 
     scene = new THREE.Scene();
-    scene.add(orbitingGroup);
 
 
     /* -----------------------------------------------------
@@ -164,7 +140,6 @@ function initCharacter() {
         alpha: true,
         powerPreference: "high-performance"
     });
-    renderer.setClearColor(0x000000, 0);
 
     renderer.setPixelRatio(
         Math.min(window.devicePixelRatio, 2)
@@ -255,40 +230,38 @@ function initCharacter() {
 
     scene.add(cyanLight);
 
+    /* =========================================================
+   GOLDEN ORBITING CODE PARTICLES (Option 3 Style)
+========================================================= */
 
-    /* =====================================================
-       SETUP ORBITING CODE PARTICLES
-    ===================================================== */
+const codeSymbols = ["</>", "{ }", "01", "C++", "PY", "JS", "DB", "fn()"];
+const orbitingGroup = new THREE.Group();
+const codeElements = [];
+const particleCount = 8;
+const orbitRadius = 2.6;
 
-    for (let i = 0; i < particleCount; i++) {
-        const symbol = codeSymbols[i % codeSymbols.length];
-        const texture = createTextTexture(symbol);
-        
-        const material = new THREE.SpriteMaterial({
-            map: texture,
-            transparent: true,
-            opacity: 1.0,
-            depthWrite: false, // Prevents depth fighting / square box cutting
-            blending: THREE.AdditiveBlending
-        });
+// Create high-res textures with warm gold text and amber glow
+function createGoldTextTexture(text) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    
+    ctx.clearRect(0, 0, 1024, 1024);
 
-        const sprite = new THREE.Sprite(material);
-        sprite.scale.set(0.9, 0.9, 0.9);
+    ctx.font = "bold 44px 'Space Grotesk', monospace";
+    ctx.fillStyle = "#ffb703"; // Liquid Gold
+    ctx.shadowColor = "#f77f00"; // Warm Amber Glow
+    ctx.shadowBlur = 18;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 512, 512);
 
-        const angle = (i / particleCount) * Math.PI * 2;
-        const yOffset = (Math.random() - 0.5) * 1.8;
-        
-        codeElements.push({
-            sprite: sprite,
-            angle: angle,
-            radius: orbitRadius + (Math.random() * 0.4 - 0.2),
-            speed: 0.35 + Math.random() * 0.25,
-            yPos: yOffset,
-            ySpeed: 1.2 + Math.random()
-        });
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+}
 
-        orbitingGroup.add(sprite);
-    }
 
     /* =====================================================
        LOAD GLB
@@ -611,19 +584,6 @@ function animateCharacter() {
 
 
     /* -----------------------------------------------------
-       Animate Orbiting Code Particles
-    ----------------------------------------------------- */
-
-    codeElements.forEach((el) => {
-        el.angle += el.speed * 0.016; 
-        
-        el.sprite.position.x = Math.cos(el.angle) * el.radius;
-        el.sprite.position.z = Math.sin(el.angle) * el.radius;
-        el.sprite.position.y = el.yPos + Math.sin(time * el.ySpeed) * 0.15;
-    });
-
-
-    /* -----------------------------------------------------
        Render
     ----------------------------------------------------- */
 
@@ -668,7 +628,7 @@ function resizeCharacter() {
     renderer.setSize(
         width,
         height,
-        true
+        false
     );
 }
 
@@ -705,7 +665,7 @@ if (menuButton && mobileMenu) {
 
 
 /* =========================================================
-   ACTIVE NAVIGATION
+   ACTIVE NAVIGATION (Fixed selector to match .nav-link)
 ========================================================= */
 
 const sections =
@@ -713,7 +673,7 @@ const sections =
 
 const navLinks =
     document.querySelectorAll(
-        ".nav-links a"
+        ".nav-link"
     );
 
 window.addEventListener(
@@ -870,4 +830,182 @@ magneticButtons.forEach((button) => {
                 "";
         }
     );
+});
+
+/* =========================================================
+   1. SPOTLIGHT GLOW CARDS EFFECT
+========================================================= */
+const glowCards = document.querySelectorAll(".project-card, .skill-card, .about-card");
+
+glowCards.forEach((card) => {
+    card.addEventListener("mousemove", (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        card.style.setProperty("--mouse-x", `${x}px`);
+        card.style.setProperty("--mouse-y", `${y}px`);
+    });
+});
+
+
+/* =========================================================
+   2. INTERACTIVE DEVELOPER TERMINAL (CLI)
+========================================================= */
+const terminalInput = document.getElementById("terminalInput");
+const terminalOutput = document.getElementById("terminalOutput");
+const terminalToggle = document.getElementById("terminalToggle");
+const terminalWidget = document.getElementById("terminalWidget");
+
+terminalToggle.addEventListener("click", () => {
+    terminalWidget.classList.toggle("minimized");
+    terminalToggle.textContent = terminalWidget.classList.contains("minimized") ? "+" : "_";
+});
+
+if (terminalInput) {
+    terminalInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            const cmd = terminalInput.value.trim().toLowerCase();
+            let response = "";
+
+            switch (cmd) {
+                case "help":
+                    response = "Available commands: <span class='highlight'>about</span>, <span class='highlight'>skills</span>, <span class='highlight'>projects</span>, <span class='highlight'>contact</span>, <span class='highlight'>clear</span>";
+                    break;
+                case "about":
+                    response = "I'm a software developer focused on building modern web apps and immersive digital experiences.";
+                    break;
+                case "skills":
+                    response = "Frontend: HTML, CSS, JS | Backend: Python, Django, SQL, C++, Java";
+                    break;
+                case "projects":
+                    response = "1. Student Management System (Django)<br>2. Interactive Experience<br>3. Developer Playground";
+                    break;
+                case "contact":
+                    response = "Reach out via the contact section or email me directly!";
+                    break;
+                case "clear":
+                    terminalOutput.innerHTML = "";
+                    terminalInput.value = "";
+                    return;
+                default:
+                    response = `<span class='error'>Command not found: '${cmd}'</span>. Type 'help' for options.`;
+            }
+
+            terminalOutput.innerHTML += `<br>&gt; ${terminalInput.value}<br>${response}`;
+            terminalInput.value = "";
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+    });
+}
+
+
+/* =========================================================
+   3. INTERACTIVE PROJECT PREVIEW MODALS
+========================================================= */
+const projectCards = document.querySelectorAll(".project-card");
+const projectModal = document.getElementById("projectModal");
+const modalClose = document.getElementById("modalClose");
+const modalCategory = document.getElementById("modalCategory");
+const modalTitle = document.getElementById("modalTitle");
+const modalDesc = document.getElementById("modalDesc");
+const modalTags = document.getElementById("modalTags");
+
+projectCards.forEach((card) => {
+    card.addEventListener("click", () => {
+        const category = card.querySelector(".project-category")?.textContent || "PROJECT";
+        const title = card.querySelector("h3")?.textContent || "Project Title";
+        const desc = card.querySelector("p")?.textContent || "Detailed description of the project architecture and features.";
+        const tags = Array.from(card.querySelectorAll(".project-tags span")).map(span => span.textContent);
+
+        modalCategory.textContent = category;
+        modalTitle.textContent = title;
+        modalDesc.textContent = desc;
+        modalTags.innerHTML = tags.map(tag => `<span>${tag}</span>`).join("");
+
+        projectModal.classList.add("open");
+    });
+});
+
+if (modalClose) {
+    modalClose.addEventListener("click", () => {
+        projectModal.classList.remove("open");
+    });
+}
+
+projectModal.addEventListener("click", (e) => {
+    if (e.target === projectModal) {
+        projectModal.classList.remove("open");
+    }
+});
+
+
+/* =========================================================
+   4. CINEMATIC SCROLL REVEALS (Intersection Observer)
+========================================================= */
+const revealElements = document.querySelectorAll(".section-heading, .about-layout, .skills-grid, .projects-grid, .timeline");
+
+const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("revealed");
+            observer.unobserve(entry.target);
+        }
+    });
+}, {
+    threshold: 0.15
+});
+
+revealElements.forEach(el => {
+    revealObserver.observe(el);
+});
+
+/* =========================================================
+   INTERACTIVE CHARACTER SPEECH BUBBLE LOGIC
+========================================================= */
+const speechBubble = document.getElementById("characterSpeech");
+
+const developerQuotes = [
+    "💡 Tip: Type 'help' in the CLI widget!",
+    "☕ Fueled by coffee & clean code.",
+    "🚀 Always building, learning & shipping.",
+    "💻 Check out my projects below!",
+    "✨ Thanks for visiting my portfolio!"
+];
+
+if (speechBubble) {
+    speechBubble.addEventListener("click", () => {
+        const randomQuote = developerQuotes[Math.floor(Math.random() * developerQuotes.length)];
+        const textSpan = speechBubble.querySelector("span");
+        
+        textSpan.style.opacity = 0;
+        setTimeout(() => {
+            textSpan.textContent = randomQuote;
+            textSpan.style.opacity = 1;
+        }, 200);
+    });
+}
+
+/* =========================================================
+   CINEMATIC PRELOADER LOGIC
+========================================================= */
+window.addEventListener("load", () => {
+    const preloader = document.getElementById("preloader");
+    const preloaderBar = document.getElementById("preloaderBar");
+    const preloaderText = document.getElementById("preloaderText");
+
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 15) + 5;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            
+            setTimeout(() => {
+                preloader.classList.add("fade-out");
+            }, 300);
+        }
+        if (preloaderBar) preloaderBar.style.width = `${progress}%`;
+        if (preloaderText) preloaderText.textContent = `INITIALIZING SYSTEM... ${progress}%`;
+    }, 80);
 });

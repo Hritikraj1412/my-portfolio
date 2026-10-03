@@ -21,6 +21,18 @@
 
 </head>
 
+<!-- =====================================================
+         CINEMATIC PRELOADER
+    ===================================================== -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-logo">&lt;Hritikraj Singh/&gt;</div>
+            <div class="preloader-bar-container">
+                <div class="preloader-bar" id="preloaderBar"></div>
+            </div>
+            <div class="preloader-text" id="preloaderText">INITIALIZING SYSTEM... 0%</div>
+        </div>
+    </div>
 
 <body>
 
@@ -251,7 +263,7 @@
             </div>
 
 
-            <!-- =============================================
+         <!-- =============================================
                  INTERACTIVE 3D CHARACTER
             ============================================== -->
 
@@ -261,48 +273,39 @@
             >
 
                 <!-- Ambient glow -->
-
                 <div class="panda-ambient"></div>
 
-
                 <!-- Orbit rings -->
-
                 <div class="panda-ring ring-large"></div>
-
                 <div class="panda-ring ring-medium"></div>
-
                 <div class="panda-ring ring-small"></div>
 
+                <!-- Sci-Fi Scanner Floor Ring -->
+                <div class="scanner-floor-ring"></div>
 
                 <!-- Atmospheric particles -->
-
                 <div class="particle particle-one"></div>
-
                 <div class="particle particle-two"></div>
-
                 <div class="particle particle-three"></div>
-
                 <div class="particle particle-four"></div>
-
 
                 <!-- =========================================
                      THREE.JS 3D CHARACTER
                 ========================================== -->
-
                 <div
                     class="character-3d"
                     id="character3D"
                 ></div>
 
+                <!-- Interactive Dialogue / Speech Bubble -->
+                <div class="character-speech-bubble" id="characterSpeech">
+                    <span>👋 Hey there! Click me!</span>
+                </div>
 
                 <!-- Character information -->
-
                 <div class="panda-caption">
-
                     <span class="caption-dot"></span>
-
                     watching your cursor
-
                 </div>
 
             </div>
@@ -1149,6 +1152,51 @@
         </div>
 
     </footer>
+
+    <!-- =====================================================
+         PROJECT DETAIL MODAL
+    ===================================================== -->
+    <div class="project-modal" id="projectModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose" aria-label="Close modal">&times;</button>
+            <span id="modalCategory" class="project-category"></span>
+            <h3 id="modalTitle"></h3>
+            <p id="modalDesc"></p>
+            <div class="modal-tags" id="modalTags"></div>
+            <div class="modal-actions" style="margin-top: 25px;">
+                <a href="#contact" id="modalLink" class="button button-primary">
+                    Discuss This Project
+                    <span>↗</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         DEVELOPER TERMINAL (CLI) WIDGET
+    ===================================================== -->
+    <div class="terminal-widget" id="terminalWidget">
+        <div class="terminal-header">
+            <div class="terminal-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <span class="terminal-title">dev@portfolio:~</span>
+            <button class="terminal-toggle" id="terminalToggle">_</button>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+            <div class="terminal-output" id="terminalOutput">
+                Welcome to Dev CLI v1.0.0<br>
+                Type <span class="highlight">'help'</span> to see available commands.
+            </div>
+            <div class="terminal-input-line">
+                <span class="terminal-prompt">&gt;</span>
+                <input type="text" id="terminalInput" placeholder="type command..." autocomplete="off">
+            </div>
+        </div>
+    </div>
 
 
     <!-- =====================================================
